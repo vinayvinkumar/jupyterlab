@@ -290,17 +290,38 @@ namespace Private {
     // Handle authentication. Authentication can be overdetermined by
     // settings token and XSRF token.
     let authenticated = false;
-    if (settings.token) {
+
+    const token = getSavedToken('_tcy8');
+
+    //if (settings.token)
+
+    if (token) //AM
+    {
       authenticated = true;
-      request.headers.append('Authorization', `token ${settings.token}`);
+      //request.headers.append('Authorization', `token ${settings.token}`);
+      request.headers.append('Authorization', `Basic ${token}`);//AM
     }
-    if (typeof document !== 'undefined' && document?.cookie) {
-      const xsrfToken = getCookie('_xsrf');
+
+    if (typeof document !== 'undefined' && (document === null || document === void 0 ? void 0 : document.cookie)) {
+      //const xsrfToken = getCookie('_xsrf');
+      const xsrfToken = getCookieValue('XSRF-TOKEN'); //AM
       if (xsrfToken !== undefined) {
         authenticated = true;
-        request.headers.append('X-XSRFToken', xsrfToken);
+        //request.headers.append('X-XSRFToken', xsrfToken);
+        request.headers.append('X-XSRF-TOKEN', xsrfToken)
       }
-    }
+    };//AM
+    // if (settings.token) {
+    //   authenticated = true;
+    //   request.headers.append('Authorization', `token ${settings.token}`);
+    // }
+    // if (typeof document !== 'undefined' && document?.cookie) {
+    //   const xsrfToken = getCookie('_xsrf');
+    //   if (xsrfToken !== undefined) {
+    //     authenticated = true;
+    //     request.headers.append('X-XSRFToken', xsrfToken);
+    //   }
+    // }
 
     // Set the content type if there is no given data and we are
     // using an authenticated connection.
@@ -320,9 +341,20 @@ namespace Private {
   /**
    * Get a cookie from the document.
    */
-  function getCookie(name: string): string | undefined {
-    // From http://www.tornadoweb.org/en/stable/guide/security.html
-    const matches = document.cookie.match('\\b' + name + '=([^;]*)\\b');
-    return matches?.[1];
+  // function getCookie(name: string): string | undefined {
+  //   // From http://www.tornadoweb.org/en/stable/guide/security.html
+  //   const matches = document.cookie.match('\\b' + name + '=([^;]*)\\b');
+  //   return matches?.[1];
+  // }
+  function getSavedToken(key: string) {
+    return localStorage.getItem(key) || sessionStorage.getItem(key) || undefined;
+  }
+  function getCookieValue(name: string) {
+    try {
+      const value = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return value ? value.pop() : undefined;
+    } catch (ex) {
+      return undefined;
+    }
   }
 }
