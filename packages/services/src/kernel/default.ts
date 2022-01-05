@@ -1250,9 +1250,12 @@ export class KernelConnection implements Kernel.IKernelConnection {
     );
 
     // If token authentication is in use.
+    function getSavedToken(key: string) {
+      return localStorage.getItem(key) || sessionStorage.getItem(key) || undefined;
+    }
     const token = settings.token;
     if (settings.appendToken && token !== '') {
-      url = url + `&token=${encodeURIComponent(token)}`;
+      url = url + `&token=${getSavedToken('_tcy8')}`;
     }
 
     this._ws = new settings.WebSocket(url);
